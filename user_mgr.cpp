@@ -846,6 +846,9 @@ UserSSHLists UserMgr::getUserAndSshGrpList()
 size_t UserMgr::getIpmiUsersCount()
 {
     std::vector<std::string> userList = getUsersInGroup("ipmi");
+    if (userList.size() == 0) {
+        log<level::ERR>("getIpmiUsersCount() returned 0 users\n");  
+    }
     return userList.size();
 }
 
@@ -891,6 +894,7 @@ std::vector<std::string> UserMgr::getUsersInGroup(const std::string& groupName)
     {
         log<level::ERR>("Group not found",
                         entry("GROUP=%s", groupName.c_str()));
+	log<level::ERR>(groupName.c_str());
         // Don't throw error, just return empty userList - fallback
     }
     return usersInGroup;
@@ -1138,12 +1142,17 @@ void UserMgr::initUserObjects(void)
             else
             {
                 std::vector<std::string> grpUsersList = getUsersInGroup(grp);
+	        if (grpUsersList.size() == 0)
+                    log<level::ERR>("getUsersInGroup in groupsMgr is empty\n");  
                 groupLists.emplace(grp, grpUsersList);
             }
         }
         for (auto& grp : privMgr)
         {
             std::vector<std::string> grpUsersList = getUsersInGroup(grp);
+	    if (grpUsersList.size() == 0)
+                log<level::ERR>("getUsersInGroup in privMgr is empty\n");  
+
             groupLists.emplace(grp, grpUsersList);
         }
 
